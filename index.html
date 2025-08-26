@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script type="module" src="users.json"></script>
+    <!-- Подключение users-storage.js (оставьте как есть) -->
+    <script type="module" src="users-storage.js"></script>
     <style>
         body, html { margin:0; padding:0; height:100%; font-family:'Inter',sans-serif; background:#0d1117; color:#e6edf3; overflow:hidden;}
         .layout { display:flex; height:100vh;}
@@ -413,6 +414,8 @@
                 </div>
             </div>
         </div>
+        <!-- Кнопка для экспорта JSON -->
+        <button onclick="downloadUsersJson()" class="btn" style="margin:15px 0;">Скачать аккаунты (JSON)</button>
     </div>
 </div>
 <script>
@@ -696,6 +699,18 @@
         document.getElementById('inactive-request-form').reset();
     };
 
+    // Функция для экспорта users в users.json
+    function downloadUsersJson() {
+        const data = JSON.stringify(users, null, 2); // users — ваш массив аккаунтов
+        const blob = new Blob([data], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "users.json";
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
     // Инициализация
     document.addEventListener('DOMContentLoaded', () => {
         renderFactions();
@@ -711,4 +726,3 @@
 </script>
 </body>
 </html>
-
