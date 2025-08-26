@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>ARZFUN Leaders</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script type="module" src="users-storage.js"></script>
+    <style>
+        body, html { margin:0; padding:0; height:100%; font-family:'Inter',sans-serif; background:#0d1117; color:#e6edf3; overflow:hidden;}
+        .layout { display:flex; height:100vh;}
+        .sidebar { width:250px; background:#161b22; padding:20px 0 20px 0; display:flex; flex-direction:column; border-right:1px solid #30363d;}
+        .sidebar-header { display:flex; align-items:center; gap:10px; margin-bottom:30px; font-size:22px; font-weight:800; padding-left:20px;}
+        .sidebar-header .logo { color:#238636; font-size:32px;}
+        .sidebar-menu { display:flex; flex-direction:column; gap:5px; padding-left:10px; padding-right:10px;}
+        .sidebar-menu-item { background:none; border:none; color:#e6edf3; text-align:left; padding:12px; border-radius:8px; cursor:pointer; font-weight:600; display:flex; align-items:center; gap:15px; transition:background-color 0.2s, color 0.2s; font-size:16px;}
+        .sidebar-menu-item:hover, .sidebar-menu-item.active { background-color:#238636; color:#fff;}
+        .sidebar-menu-item .material-icons { font-size:22px;}
+        .sidebar-footer { margin-top:auto; border-top:1px solid #30363d; padding:20px 20px 0 20px; font-size:13px; color:#9aa6b2;}
+        .content { flex:1; padding:30px 40px; overflow-y:auto;}
+        .tab { display:none;}
+        .tab.active { display:block;}
+        .profile-card { background:#161b22; border-radius:12px; padding:24px; display:flex; align-items:center; gap:30px; margin-bottom:24px; border:1px solid #30363d;}
+        .profile-card img { width:110px; height:110px; border-radius:50%; border:3px solid #30363d; object-fit:cover;}
+        .profile-details h3 { margin:0; font-size:28px; font-weight:800;}
+        .profile-details p { margin:6px 0 0; color:#9aa6b2; font-size:16px;}
+        .profile-details-stats { display:flex; gap:30px; margin-top:18px;}
+        .profile-details-stats div { text-align:center;}
+        .profile-details-stats .value { font-size:20px; font-weight:700; color:#fff;}
+        .profile-details-stats .label { font-size:13px; color:#9aa6b2;}
+        .stats-card { background:#161b22; border-radius:12px; padding:24px; margin-bottom:24px; border:1px solid #30363d;}
+        .stats-card h4 { margin-top:0; font-weight:700; font-size:20px;}
+        .info-item { background:#0d1117; padding:15px; border-radius:8px; border:1px solid #30363d; margin-bottom:12px;}
+        .info-item .label { font-size:14px; color:#9aa6b2; margin-bottom:5px;}
+        .info-item .value { font-size:18px; font-weight:600; display:flex; align-items:center; gap:5px;}
+        .stats-progress { background:#30363d; border-radius:6px; height:8px; margin-top:6px; width:100%; overflow:hidden;}
+        .stats-progress-bar { background:#238636; height:100%; border-radius:6px;}
+        .leaders-list, .inactive-list, .admin-list, .project-list, .ranks-list { display:flex; flex-wrap:wrap; gap:18px;}
+        .leader-card, .inactive-card, .admin-card, .project-card { background:#161b22; border-radius:10px; padding:18px; display:flex; align-items:center; gap:18px; min-width:260px; border:1px solid #30363d;}
+        .leader-card img, .inactive-card img, .admin-card img, .project-card img { width:54px; height:54px; border-radius:50%; object-fit:cover; border:2px solid #30363d;}
+        .leader-info, .inactive-info, .admin-info, .project-info { flex:1;}
+        .leader-info .name, .inactive-info .name, .admin-info .name, .project-info .name { font-weight:700; font-size:18px;}
+        .leader-info .role, .inactive-info .role, .admin-info .role, .project-info .role { color:#9aa6b2; font-size:15px;}
+        .leader-info .online, .admin-info .online { font-size:13px; color:#238636; margin-top:4px;}
+        .factions-grid { display:flex; gap:20px; flex-wrap:wrap;}
+        .faction-card { width:340px; background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.02)); border:2px solid #2b2f33; border-radius:16px; padding:24px; cursor:pointer; transition:transform 0.15s,box-shadow 0.15s; display:flex; flex-direction:column; gap:10px; font-size:18px;}
+        .faction-card.big { width:480px; font-size:22px; border-width:3px;}
+        .faction-card:hover { transform:translateY(-6px); box-shadow:0 8px 20px rgba(0,0,0,0.6);}
+        .faction-swatch { width:100%; height:110px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:32px; color:#fff; position:relative; margin-bottom:8px;}
+        .faction-meta { display:flex; justify-content:space-between; align-items:center; font-size:16px; color:#c9d2d9;}
+        .faction-meta .leader { font-weight:600; color:#fff;}
+        .faction-footer { font-size:15px; color:#9aa6b2; display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;}
+        .members-list { margin-top:10px; border-top:1px solid #23272a; padding-top:8px;}
+        .member { display:flex; justify-content:space-between; padding:6px 2px; border-bottom:1px dashed rgba(255,255,255,0.03); font-size:16px;}
+        .member .role { color:#9aa6b2; font-size:15px;}
+        .ranks-list { flex-direction:column; gap:10px;}
+        .rank-card { background:#161b22; border-radius:8px; padding:14px 18px; border:1px solid #30363d; font-size:16px;}
+        .rank-title { font-weight:700; color:#238636; margin-bottom:4px;}
+        .situations-table { width:100%; border-collapse:collapse; margin-top:10px;}
+        .situations-table th, .situations-table td { padding:10px; border-bottom:1px solid #30363d; font-size:15px;}
+        .situations-table th { color:#9aa6b2; font-weight:600; background:#161b22;}
+        .situations-table td { color:#e6edf3; background:#0d1117;}
+        .btn { background:#238636; color:#fff; border:none; border-radius:8px; padding:10px 22px; font-size:16px; font-weight:600; cursor:pointer; margin-right:10px; margin-top:10px; transition:background 0.2s;}
+        .btn:hover { background:#2ea043;}
+        .form-group { margin-bottom:16px;}
+        .form-group label { display:block; margin-bottom:6px; color:#9aa6b2;}
+        .form-group input, .form-group select { width:100%; padding:8px; border-radius:6px; border:1px solid #30363d; background:#161b22; color:#e6edf3; font-size:16px;}
+        .form-group input[type="file"] { background:none; color:#9aa6b2;}
+        .admin-panel { background:#161b22; border-radius:12px; padding:24px; margin-bottom:24px; border:1px solid #30363d;}
+        .admin-panel h3 { margin-top:0;}
+        .user-list { margin-top:10px;}
+        .user-row { display:flex; align-items:center; gap:12px; margin-bottom:10px;}
+        .user-row img { width:36px; height:36px; border-radius:50%; border:2px solid #30363d;}
+        .user-row .user-nick { font-weight:600;}
+        .user-row select { min-width:220px;}
+        @media (max-width:900px) {
+            .layout { flex-direction:column;}
+            .sidebar { width:100%; flex-direction:row; border-right:none; border-bottom:1px solid #30363d;}
+            .sidebar-menu { flex-direction:row; gap:0;}
+            .sidebar-menu-item { flex:1; font-size:14px; padding:10px 4px;}
+            .content { padding:16px;}
+            .profile-card, .stats-card { flex-direction:column; align-items:flex-start; gap:16px;}
+            .leaders-list, .inactive-list, .admin-list, .project-list, .ranks-list { gap:10px;}
+            .factions-grid { gap:10px;}
+            .faction-card, .faction-card.big { width:100%;}
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <span class="material-icons logo">groups</span>
+            ARZFUN Leaders
+        </div>
+        <div class="sidebar-menu">
+            <button class="sidebar-menu-item active" data-tab="profile"><span class="material-icons">account_circle</span>Профиль</button>
+            <button class="sidebar-menu-item" data-tab="leaders"><span class="material-icons">star</span>Лидеры и замы</button>
+            <button class="sidebar-menu-item" data-tab="inactive"><span class="material-icons">no_accounts</span>Неактив</button>
+            <button class="sidebar-menu-item" data-tab="factions"><span class="material-icons">groups</span>Фракции</button>
+            <button class="sidebar-menu-item" data-tab="admins"><span class="material-icons">verified_user</span>Администрация</button>
+            <button class="sidebar-menu-item" data-tab="project"><span class="material-icons">manage_accounts</span>Руководство</button>
+            <button class="sidebar-menu-item" data-tab="ranks"><span class="material-icons">format_list_numbered</span>Ранги</button>
+            <button class="sidebar-menu-item" data-tab="situations"><span class="material-icons">warning</span>Ситуации</button>
+            <button class="sidebar-menu-item" data-tab="inactive-request"><span class="material-icons">assignment</span>Заявка на неактив</button>
+            <button class="sidebar-menu-item" data-tab="auth"><span class="material-icons">login</span>Вход/Регистрация</button>
+            <button class="sidebar-menu-item" data-tab="adminpanel" id="adminpanel-btn" style="display:none"><span class="material-icons">admin_panel_settings</span>Админка</button>
+        </div>
+        <div class="sidebar-footer">
+            &copy; 2025 ARZFUN Leaders
+        </div>
+    </div>
+    <div class="content">
+        <!-- Профиль -->
+        <div class="tab active" id="tab-profile">
+            <div class="profile-card">
+                <img id="profile-avatar" src="https://i.imgur.com/G5i6h0b.png" alt="avatar">
+                <div class="profile-details">
+                    <h3 id="profile-nick">Valentin_Vertucci</h3>
+                    <p id="profile-role">Лидер</p>
+                    <p id="profile-faction">Фракция: Grove Street</p>
+                    <div class="profile-details-stats">
+                        <div>
+                            <div class="value" id="profile-points">30</div>
+                            <div class="label">Баллы</div>
+                        </div>
+                        <div>
+                            <div class="value" id="profile-days">73/92</div>
+                            <div class="label">Дни</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="label">Общая информация</div>
+                <div class="value" id="profile-online">Онлайн за 6 дней <span class="material-icons" style="font-size:18px;">schedule</span></div>
+            </div>
+            <div class="info-item">
+                <div class="label">КПД</div>
+                <div class="value" id="profile-kpd">0.53</div>
+            </div>
+            <div class="info-item">
+                <div class="label">Выговоры</div>
+                <div class="value" id="profile-warns">0/3</div>
+            </div>
+            <div class="info-item">
+                <div class="label">Предупреждения</div>
+                <div class="value" id="profile-prewarns">0/2</div>
+            </div>
+            <!-- Статистика показывается только для лидеров и замов -->
+            <div class="stats-card" id="leader-stats-block" style="display:none;">
+                <h4>Статистика за неделю <span id="stats-week"></span></h4>
+                <div>
+                    <div>✔ Принято за неделю <span id="stats-accepted"></span></div>
+                    <div class="stats-progress"><div class="stats-progress-bar" id="stats-accepted-bar"></div></div>
+                </div>
+                <div>
+                    <div>✖ Уволено за неделю <span id="stats-fired"></span></div>
+                    <div class="stats-progress"><div class="stats-progress-bar" id="stats-fired-bar"></div></div>
+                </div>
+                <div>
+                    <div>↑ Повышено за неделю <span id="stats-promoted"></span></div>
+                    <div class="stats-progress"><div class="stats-progress-bar" id="stats-promoted-bar"></div></div>
+                </div>
+                <div>
+                    <div>⏰ Онлайн за неделю <span id="stats-online"></span></div>
+                    <div class="stats-progress"><div class="stats-progress-bar" id="stats-online-bar"></div></div>
+                </div>
+            </div>
+            <div id="profile-edit-block" style="display:none;">
+                <h3>Редактировать профиль</h3>
+                <form id="profile-edit-form">
+                    <div class="form-group">
+                        <label>Ник</label>
+                        <input type="text" id="edit-nick" maxlength="32">
+                    </div>
+                    <div class="form-group">
+                        <label>Аватар</label>
+                        <input type="file" id="edit-avatar" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn">Сохранить</button>
+                </form>
+            </div>
+        </div>
+        <!-- Лидеры и замы -->
+        <div class="tab" id="tab-leaders">
+            <h2>Лидеры и заместители</h2>
+            <div class="leaders-list" id="leaders-list"></div>
+        </div>
+        <!-- Неактив -->
+        <div class="tab" id="tab-inactive">
+            <h2>Неактивные игроки</h2>
+            <div class="inactive-list">
+                <div class="inactive-card">
+                    <img src="https://i.imgur.com/9Q9Z1Zy.png" alt="avatar">
+                    <div class="inactive-info">
+                        <div class="name">Inactive_One</div>
+                        <div class="role">Игрок Grove</div>
+                    </div>
+                </div>
+                <div class="inactive-card">
+                    <img src="https://i.imgur.com/10Q9Z1Zy.png" alt="avatar">
+                    <div class="inactive-info">
+                        <div class="name">Inactive_Two</div>
+                        <div class="role">Игрок Ballas</div>
+                    </div>
+                </div>
+                <div class="inactive-card">
+                    <img src="https://i.imgur.com/11Q9Z1Zy.png" alt="avatar">
+                    <div class="inactive-info">
+                        <div class="name">Inactive_Three</div>
+                        <div class="role">Игрок Grove</div>
+                    </div>
+                </div>
+                <div class="inactive-card">
+                    <img src="https://i.imgur.com/12Q9Z1Zy.png" alt="avatar">
+                    <div class="inactive-info">
+                        <div class="name">Inactive_Four</div>
+                        <div class="role">Игрок Ballas</div>
+                    </div>
+                </div>
+                <div class="inactive-card">
+                    <img src="https://i.imgur.com/13Q9Z1Zy.png" alt="avatar">
+                    <div class="inactive-info">
+                        <div class="name">Inactive_Five</div>
+                        <div class="role">Игрок Grove</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Фракции -->
+        <div class="tab" id="tab-factions">
+            <h2>Фракции</h2>
+            <div class="factions-grid" id="factions-grid"></div>
+        </div>
+        <!-- Администрация -->
+        <div class="tab" id="tab-admins">
+            <h2>Администрация</h2>
+            <div class="admin-list">
+                <div class="admin-card">
+                    <img src="https://i.imgur.com/14Q9Z1Zy.png" alt="avatar">
+                    <div class="admin-info">
+                        <div class="name">Admin_One</div>
+                        <div class="role">Главный админ</div>
+                        <div class="online">Онлайн: 15:00:00</div>
+                    </div>
+                </div>
+                <div class="admin-card">
+                    <img src="https://i.imgur.com/15Q9Z1Zy.png" alt="avatar">
+                    <div class="admin-info">
+                        <div class="name">Admin_Two</div>
+                        <div class="role">Админ</div>
+                        <div class="online">Онлайн: 10:30:00</div>
+                    </div>
+                </div>
+                <div class="admin-card">
+                    <img src="https://i.imgur.com/16Q9Z1Zy.png" alt="avatar">
+                    <div class="admin-info">
+                        <div class="name">Admin_Three</div>
+                        <div class="role">Модератор</div>
+                        <div class="online">Онлайн: 7:45:00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Руководство -->
+        <div class="tab" id="tab-project">
+            <h2>Руководство проекта</h2>
+            <div class="project-list">
+                <div class="project-card">
+                    <img src="https://forum.arzfun.com/data/avatars/h/0/4.jpg?1704888115" alt="avatar">
+                    <div class="project-info">
+                        <div class="name">Patsoha</div>
+                        <div class="role">Владелец</div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <img src="https://forum.arzfun.com/data/avatars/h/4/4670.jpg?1751054740" alt="avatar">
+                    <div class="project-info">
+                        <div class="name">Kercheck_Percheck</div>
+                        <div class="role">Разработчик arzfun leaders</div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <img src="https://forum.arzfun.com/data/avatars/l/0/1.jpg?1755170648" alt="avatar">
+                    <div class="project-info">
+                        <div class="name">dmk</div>
+                        <div class="role">Разработчик</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Ранги -->
+        <div class="tab" id="tab-ranks">
+            <h2>Ранги в игре</h2>
+            <div class="ranks-list">
+                <div class="rank-card" style="border-left:8px solid #21a35a;">
+                    <div class="rank-title" style="color:#21a35a;">Лидер Grove Street</div>
+                    <div>Управляет фракцией Grove Street.</div>
+                </div>
+                <div class="rank-card" style="border-left:8px solid #7f3fbf;">
+                    <div class="rank-title" style="color:#7f3fbf;">Лидер Ballas Gang</div>
+                    <div>Управляет фракцией Ballas Gang.</div>
+                </div>
+                <div class="rank-card" style="border-left:8px solid #4fdc8c;">
+                    <div class="rank-title" style="color:#4fdc8c;">Заместитель Grove Street</div>
+                    <div>Помогает лидеру Grove Street.</div>
+                </div>
+                <div class="rank-card" style="border-left:8px solid #b47fff;">
+                    <div class="rank-title" style="color:#b47fff;">Заместитель Ballas</div>
+                    <div>Помогает лидеру Ballas Gang.</div>
+                </div>
+                <div class="rank-card" style="border-left:8px solid #29a609;">
+                    <div class="rank-title" style="color:#29a609;">Главный следящий за гетто</div>
+                    <div>Контролирует все фракции гетто в том числе и следящих.</div>
+                </div>
+                <div class="rank-card" style="border-left:8px solid #29a609;">
+                    <div class="rank-title" style="color:#29a609;">Заместитель главного следящего за гетто</div>
+                    <div>Помогает главному следящему.</div>
+                </div>
+                <div class="rank-card" style="border-left:8px solid #29a609;">
+                    <div class="rank-title" style="color:#29a609;">Следящий гетто</div>
+                    <div>Модерирует игроков гетто.</div>
+                </div>
+                <div class="rank-card" style="border-left:8px solid #df0707;">
+                    <div class="rank-title" style="color:#df0707;">Спец.администратор</div>
+                    <div>Спец.администратор сервера.</div>
+                </div>
+                <div class="rank-card" style="border-left:8px solid #10cfe4;">
+                    <div class="rank-title" style="color:#10cfe4;">Модератор</div>
+                    <div>Модератор сервера.</div>
+                </div>
+            </div>
+        </div>
+        <!-- Ситуации -->
+        <div class="tab" id="tab-situations">
+            <h2>Ситуации</h2>
+            <table class="situations-table">
+                <thead>
+                    <tr>
+                        <th>Описание</th>
+                        <th>Статус</th>
+                        <th>Игрок</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Конфликт на территории Grove</td><td style="color:#238636;">Решено</td><td>Alex_Morgan</td></tr>
+                    <tr><td>Жалоба на BallasBoss</td><td style="color:#f39c12;">В процессе</td><td>BallasBoss</td></tr>
+                    <tr><td>Взлом аккаунта VagosChief</td><td style="color:#e74c3c;">Ожидает</td><td>VagosChief</td></tr>
+                    <tr><td>Спам от AztecKing</td><td style="color:#238636;">Решено</td><td>AztecKing</td></tr>
+                    <tr><td>Нарушение правил Grove</td><td style="color:#f39c12;">В процессе</td><td>Valentin_Vertucci</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- Вход/Регистрация -->
+        <div class="tab" id="tab-auth">
+            <h2>Вход / Регистрация</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label>Ник</label>
+                    <input type="text" id="reg-nick" maxlength="32" required>
+                </div>
+                <div class="form-group">
+                    <label>Аватар (URL или загрузка)</label>
+                    <input type="text" id="reg-avatar" placeholder="URL картинки">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="reg-pass" required>
+                </div>
+                <button type="submit" class="btn">Зарегистрироваться</button>
+            </form>
+            <hr style="margin:20px 0;">
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Ник</label>
+                    <input type="text" id="login-nick" maxlength="32" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="login-pass" required>
+                </div>
+                <button type="submit" class="btn">Войти</button>
+            </form>
+            <div id="auth-status" style="margin-top:18px;font-size:16px;color:#9aa6b2;">Статус: Гость</div>
+        </div>
+        <!-- Админка -->
+        <div class="tab" id="tab-adminpanel">
+            <div class="admin-panel">
+                <h3>Панель администратора</h3>
+                <form id="admin-login-form" style="margin-bottom:20px;">
+                    <div class="form-group">
+                        <label>Пароль администратора</label>
+                        <input type="password" id="admin-login-pass" required>
+                    </div>
+                    <button type="submit" class="btn">Войти в админку</button>
+                </form>
+                <div class="user-list" id="admin-user-list" style="display:none;"></div>
+                <div style="margin-top:20px;">
+                    <b>Telegram Bot API:</b>
+                    <div style="font-size:14px;color:#9aa6b2;">
+                        Для управления сайтом через Telegram-бота используйте команды:<br>
+                        <code>/add_leader ник</code> — добавить лидера<br>
+                        <code>/add_deputy ник</code> — добавить зама<br>
+                        <code>/remove_leader ник</code> — убрать лидера<br>
+                        <code>/remove_deputy ник</code> — убрать зама<br>
+                        <code>/inactive ник</code> — выдать неактив<br>
+                        <code>/set_role ник роль</code> — выдать роль<br>
+                        <br>
+                        <b>Интеграция требует серверной части!</b>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Цвета ролей
+    const roleColors = {
+        "Лидер Grove Street": "#21a35a",
+        "Лидер Ballas Gang": "#7f3fbf",
+        "Заместитель Ballas": "#b47fff",
+        "Заместитель Grove Street": "#4fdc8c",
+        "Главный следящий за гетто": "#e6c200",
+        "Заместитель главного следящего за гетто": "#e6c200",
+        "Следящий гетто": "#e6c200",
+        "Спец.администратор": "#00bfff",
+        "Модератор": "#e74c3c",
+        "Игрок": "#9aa6b2"
+    };
+
+    // Демо-данные пользователей
+    let users = [
+        {nick:"Valentin_Vertucci", avatar:"https://i.imgur.com/G5i6h0b.png", pass:"admin", role:"Лидер Grove Street", faction:"Grove Street", isAdmin:true},
+        {nick:"Alex_Morgan", avatar:"https://i.imgur.com/1Q9Z1Zy.png", pass:"grove", role:"Лидер Grove Street", faction:"Grove Street", isAdmin:false},
+        {nick:"BallasBoss", avatar:"https://i.imgur.com/2Q9Z1Zy.png", pass:"ballas", role:"Лидер Ballas Gang", faction:"Ballas Gang", isAdmin:false},
+        {nick:"Grover1", avatar:"https://i.imgur.com/5Q9Z1Zy.png", pass:"grove1", role:"Заместитель Grove Street", faction:"Grove Street", isAdmin:false},
+        {nick:"Ball1", avatar:"https://i.imgur.com/6Q9Z1Zy.png", pass:"ball1", role:"Заместитель Ballas", faction:"Ballas Gang", isAdmin:false}
+    ];
+    let roles = [
+        "Лидер Grove Street","Лидер Ballas Gang","Заместитель Ballas","Заместитель Grove Street",
+        "Главный следящий за гетто","Заместитель главного следящего за гетто","Следящий гетто",
+        "Спец.администратор","Модератор","Игрок"
+    ];
+    let currentUser = null;
+    let adminPanelUnlocked = false;
+    const ADMIN_PANEL_PASSWORD = "SuperSecret2025!"; // сложный пароль
+
+    // Фракции
+    const factionsData = [
+        {
+            id: 'grove',
+            displayName: 'Grove Street',
+            color: '#21a35a',
+            leader: 'Alex_Morgan',
+            deputies: ['Grover1'],
+            fc: 128,
+            members: [
+                { nick: 'Alex_Morgan', role: 'Лидер Grove Street' },
+                { nick: 'Grover1', role: 'Заместитель Grove Street' },
+                { nick: 'Valentin_Vertucci', role: 'Лидер Grove Street' }
+            ]
+        },
+        {
+            id: 'ballas',
+            displayName: 'Ballas Gang',
+            color: '#7f3fbf',
+            leader: 'BallasBoss',
+            deputies: ['Ball1'],
+            fc: 75,
+            members: [
+                { nick: 'BallasBoss', role: 'Лидер Ballas Gang' },
+                { nick: 'Ball1', role: 'Заместитель Ballas' }
+            ]
+        }
+    ];
+
+    function renderFactions() {
+        const grid = document.getElementById('factions-grid');
+        grid.innerHTML = '';
+        factionsData.forEach(fr => {
+            const big = (fr.id === 'grove' || fr.id === 'ballas') ? 'big' : '';
+            const card = document.createElement('div');
+            card.className = 'faction-card ' + big;
+            card.innerHTML = `
+                <div class="faction-swatch" style="background:${fr.color};">${fr.displayName}</div>
+                <div class="faction-meta">
+                    <div>
+                        <div class="small">Лидер</div>
+                        <div class="leader">${fr.leader}</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div class="small">Замы</div>
+                        <div class="leader">${fr.deputies.length}</div>
+                    </div>
+                </div>
+                <div class="faction-footer">
+                    <div class="small">Участников: <strong>${fr.members.length}</strong></div>
+                    <div class="small">Общак: <strong>${fr.fc} FC</strong></div>
+                </div>
+                <div class="members-list">
+                    ${fr.members.map(m => `<div class="member"><div>${m.nick}</div><div class="role" style="color:${roleColors[m.role]||'#9aa6b2'}">${m.role}</div></div>`).join('')}
+                </div>
+                <div style="margin-top:12px; font-size:16px; color:#fff;">
+                    Лидер — <b>${fr.leader}</b> &nbsp; Заместители — <b>${fr.deputies.length}</b>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function renderLeaders() {
+        const list = document.getElementById('leaders-list');
+        list.innerHTML = '';
+        users.filter(u => u.role && (u.role.includes('Лидер') || u.role.includes('Заместитель'))).forEach(u => {
+            list.innerHTML += `
+                <div class="leader-card">
+                    <img src="${u.avatar}" alt="avatar">
+                    <div class="leader-info">
+                        <div class="name">${u.nick}</div>
+                        <div class="role" style="color:${roleColors[u.role]||'#9aa6b2'}">${u.role}</div>
+                        <div class="online">Онлайн: 12:34:56</div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function renderAdminPanel() {
+        const list = document.getElementById('admin-user-list');
+        if (!adminPanelUnlocked) {
+            list.style.display = "none";
+            return;
+        }
+        list.style.display = "";
+        list.innerHTML = '';
+        users.forEach((u, idx) => {
+            list.innerHTML += `
+                <div class="user-row">
+                    <img src="${u.avatar}" alt="avatar">
+                    <span class="user-nick">${u.nick}</span>
+                    <select data-idx="${idx}">
+                        ${roles.map(r => `<option value="${r}" ${u.role===r?'selected':''}>${r}</option>`).join('')}
+                    </select>
+                </div>
+            `;
+        });
+        // обработка выдачи ролей
+        list.querySelectorAll('select').forEach(sel => {
+            sel.onchange = function() {
+                users[this.dataset.idx].role = this.value;
+                renderLeaders();
+                renderFactions();
+            };
+        });
+    }
+
+    // Вкладки
+    const tabs = document.querySelectorAll('.tab');
+    const sidebarBtns = document.querySelectorAll('.sidebar-menu-item');
+    sidebarBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Гости не могут смотреть сайт
+            if (!currentUser && btn.getAttribute('data-tab') !== 'auth') {
+                alert('Только зарегистрированные пользователи могут просматривать сайт!');
+                sidebarBtns.forEach(b => b.classList.remove('active'));
+                sidebarBtns[sidebarBtns.length-2].classList.add('active'); // auth
+                tabs.forEach(tab => tab.classList.remove('active'));
+                document.getElementById('tab-auth').classList.add('active');
+                return;
+            }
+            btn.classList.add('active');
+            sidebarBtns.forEach(b => { if(b!==btn) b.classList.remove('active'); });
+            tabs.forEach(tab => tab.classList.remove('active'));
+            const tabId = 'tab-' + btn.getAttribute('data-tab');
+            const tabElem = document.getElementById(tabId);
+            if (tabElem) {
+                tabElem.classList.add('active');
+                if (tabId === 'tab-factions') renderFactions();
+                if (tabId === 'tab-leaders') renderLeaders();
+                if (tabId === 'tab-adminpanel') renderAdminPanel();
+            }
+        });
+    });
+
+    // Регистрация
+    document.getElementById('register-form').onsubmit = function(e) {
+        e.preventDefault();
+        const nick = document.getElementById('reg-nick').value.trim();
+        const avatar = document.getElementById('reg-avatar').value.trim() || "https://i.imgur.com/G5i6h0b.png";
+        const pass = document.getElementById('reg-pass').value;
+        if (!nick || !pass) return alert('Заполните все поля!');
+        if (users.find(u=>u.nick===nick)) return alert('Пользователь уже существует!');
+        users.push({nick, avatar, pass, role:"Игрок", faction:"Нет", isAdmin:false});
+        alert('Регистрация успешна! Теперь войдите.');
+        document.getElementById('register-form').reset();
+    };
+
+    // Вход
+    document.getElementById('login-form').onsubmit = function(e) {
+        e.preventDefault();
+        const nick = document.getElementById('login-nick').value.trim();
+        const pass = document.getElementById('login-pass').value;
+        const user = users.find(u=>u.nick===nick && u.pass===pass);
+        if (!user) return alert('Неверные данные!');
+        currentUser = user;
+        document.getElementById('auth-status').textContent = 'Статус: Вошёл как ' + user.nick;
+        showProfile(user);
+        document.getElementById('adminpanel-btn').style.display = user.isAdmin ? '' : 'none';
+        document.getElementById('profile-edit-block').style.display = '';
+        sidebarBtns.forEach(b=>b.classList.remove('active'));
+        sidebarBtns[0].classList.add('active');
+        tabs.forEach(tab=>tab.classList.remove('active'));
+        document.getElementById('tab-profile').classList.add('active');
+    };
+
+    // Редактирование профиля
+    document.getElementById('profile-edit-form').onsubmit = function(e) {
+        e.preventDefault();
+        if (!currentUser) return;
+        const nick = document.getElementById('edit-nick').value.trim();
+        const avatarInput = document.getElementById('edit-avatar');
+        let avatar = currentUser.avatar;
+        if (avatarInput.files && avatarInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                avatar = evt.target.result;
+                updateProfile(nick, avatar);
+            };
+            reader.readAsDataURL(avatarInput.files[0]);
+        } else {
+            avatar = document.getElementById('edit-avatar').value.trim() || avatar;
+            updateProfile(nick, avatar);
+        }
+    };
+    function updateProfile(nick, avatar) {
+        if (nick) currentUser.nick = nick;
+        if (avatar) currentUser.avatar = avatar;
+        showProfile(currentUser);
+        renderLeaders();
+        renderFactions();
+        alert('Профиль обновлён!');
+    }
+
+    // Показывать статистику только для лидеров и замов
+    function showProfile(user) {
+        document.getElementById('profile-avatar').src = user.avatar;
+        document.getElementById('profile-nick').textContent = user.nick;
+        document.getElementById('profile-role').textContent = user.role;
+        document.getElementById('profile-role').style.color = roleColors[user.role]||'#9aa6b2';
+        document.getElementById('profile-faction').textContent = 'Фракция: ' + (user.faction||'Нет');
+        document.getElementById('edit-nick').value = user.nick;
+        document.getElementById('edit-avatar').value = '';
+
+        // Статистика только для лидеров и замов
+        const statsBlock = document.getElementById('leader-stats-block');
+        if (user.role && (user.role.includes('Лидер') || user.role.includes('Заместитель'))) {
+            statsBlock.style.display = '';
+            // Примерные данные, можно заменить на реальные
+            document.getElementById('stats-week').textContent = '25.04.25 - 02.05.25';
+            document.getElementById('stats-accepted').textContent = '0/0 (0%)';
+            document.getElementById('stats-fired').textContent = '3/37 (8%)';
+            document.getElementById('stats-promoted').textContent = '10/29 (34%)';
+            document.getElementById('stats-online').textContent = '29:43:14/23:02:56';
+            document.getElementById('stats-accepted-bar').style.width = '0%';
+            document.getElementById('stats-fired-bar').style.width = '8%';
+            document.getElementById('stats-promoted-bar').style.width = '34%';
+            document.getElementById('stats-online-bar').style.width = '100%';
+        } else {
+            statsBlock.style.display = 'none';
+        }
+    }
+
+    // Админка: вход по паролю
+    document.getElementById('admin-login-form').onsubmit = function(e) {
+        e.preventDefault();
+        const pass = document.getElementById('admin-login-pass').value;
+        if (pass !== ADMIN_PANEL_PASSWORD) {
+            alert('Неверный пароль!');
+            return;
+        }
+        adminPanelUnlocked = true;
+        renderAdminPanel();
+        document.getElementById('admin-login-form').style.display = 'none';
+    };
+
+    // Заявка на неактив
+    document.getElementById('inactive-request-form').onsubmit = function(e) {
+        e.preventDefault();
+        if (!currentUser) {
+            document.getElementById('inactive-request-status').textContent = 'Только зарегистрированные пользователи могут отправлять заявки!';
+            return;
+        }
+        document.getElementById('inactive-request-status').textContent = 'Заявка отправлена!';
+        document.getElementById('inactive-request-form').reset();
+    };
+
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', () => {
+        renderFactions();
+        renderLeaders();
+        // Скрыть все вкладки кроме регистрации для гостей
+        if (!currentUser) {
+            tabs.forEach(tab => tab.classList.remove('active'));
+            document.getElementById('tab-auth').classList.add('active');
+            sidebarBtns.forEach(b => b.classList.remove('active'));
+            sidebarBtns[sidebarBtns.length-2].classList.add('active'); // auth
+        }
+    });
+</script>
+</body>
+</html>
