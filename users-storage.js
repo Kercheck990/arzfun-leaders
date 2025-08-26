@@ -1,10 +1,18 @@
-import { loadUsers, saveUsers } from './users-storage.js';
-
-// Получить пользователей
-let users = loadUsers();
-
-// Добавить нового пользователя
-users.push({ nick: "Test", pass: "123", role: "Игрок" });
-
-// Сохранить изменения
-saveUsers(users);
+[
+  {
+    "nick": "Kercheck_Percheck",
+    "avatar": "https://forum.arzfun.com/data/avatars/h/4/4670.jpg?1751054740",
+    "pass": "admin",
+    "role": "Разработчик",
+    "faction": "Разработчик",
+    "isAdmin": true
+  },
+  {
+    "nick": "Alex_Morgan",
+    "avatar": "https://i.imgur.com/1Q9Z1Zy.png",
+    "pass": "grove",
+    "role": "Лидер Grove Street",
+    "faction": "Grove Street",
+    "isAdmin": false
+  }
+]
