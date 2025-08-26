@@ -1,20 +1,10 @@
-// Õðàíèëèùå ïîëüçîâàòåëåé äëÿ GitHub Pages (localStorage)
-const STORAGE_KEY = 'arzfun_users';
+import { loadUsers, saveUsers } from './users-storage.js';
 
-export function loadUsers() {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return [];
-        return JSON.parse(raw);
-    } catch (e) {
-        return [];
-    }
-}
+// Получить пользователей
+let users = loadUsers();
 
-export function saveUsers(users) {
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-    } catch (e) {
-        // Îøèáêà ñîõðàíåíèÿ
-    }
-}
+// Добавить нового пользователя
+users.push({ nick: "Test", pass: "123", role: "Игрок" });
+
+// Сохранить изменения
+saveUsers(users);
