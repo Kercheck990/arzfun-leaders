@@ -1,4 +1,4 @@
-// Хранилище пользователей для GitHub Pages (localStorage)
+// Г•Г°Г Г­ГЁГ«ГЁГ№ГҐ ГЇГ®Г«ГјГ§Г®ГўГ ГІГҐГ«ГҐГ© Г¤Г«Гї GitHub Pages (localStorage)
 const STORAGE_KEY = 'arzfun_users';
 
 export function loadUsers() {
@@ -15,6 +15,6 @@ export function saveUsers(users) {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
     } catch (e) {
-        // Ошибка сохранения
+        // ГЋГёГЁГЎГЄГ  Г±Г®ГµГ°Г Г­ГҐГ­ГЁГї
     }
 }
