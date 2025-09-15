@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Панель — Ghetto Panel</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="bg-dark">
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">GhettoPanel</div>
+      <nav>
+        <button class="navbtn" data-view="profiles">Профили</button>
+        <button class="navbtn" data-view="leaders">Лидеры</button>
+        <button class="navbtn" data-view="followers">Следящие</button>
+        <button class="navbtn" data-view="info">Инфо сайта</button>
+        <button id="logoutBtn" class="navbtn danger">Выйти</button>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div id="topTitle">Профили</div>
+        <div>
+          <button id="refreshBtn" class="btn small">Обновить</button>
+          <span class="user-pill">admin</span>
+        </div>
+      </header>
+
+      <section id="content" class="content">
+        <!-- контент генерируется через JS -->
+      </section>
+    </main>
+  </div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
