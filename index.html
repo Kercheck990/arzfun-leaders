@@ -1,26 +1,86 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Вход — Ghetto Panel</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<title>Arizona RP Forum</title>
+<style>
+body { margin: 0; font-family: Arial; display: flex; }
+nav { width: 200px; background: #222; color: #fff; height: 100vh; padding: 10px; }
+nav button { display: block; width: 100%; margin: 5px 0; padding: 10px; background: #444; color: #fff; border: none; cursor: pointer; }
+main { flex: 1; padding: 20px; background: #f0f0f0; overflow-y: auto; }
+.profile { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; background: #fff; }
+.profile img { width: 50px; height: 50px; border-radius: 50%; }
+.banner { width: 100%; max-height: 200px; margin-bottom: 10px; }
+</style>
 </head>
-<body class="bg-dark">
-  <div class="center-wrap">
-    <div class="card login-card">
-      <h1>Ghetto Panel</h1>
-      <form id="loginForm">
-        <input id="username" placeholder="Username" required />
-        <input id="password" placeholder="Password" type="password" required />
-        <div id="loginError" class="error" style="display:none;"></div>
-        <button type="submit" class="btn">Войти</button>
-      </form>
-      <p class="hint">Тестовый логин: <strong>admin</strong> / пароль: <strong>admin123</strong></p>
-    </div>
-  </div>
+<body>
+<nav>
+<button onclick="showProfiles()">Профили</button>
+<button onclick="showLeaders()">Лидеры</button>
+<button onclick="showSled()">Следящие</button>
+<button onclick="showInfo()">Инфо сайта</button>
+</nav>
+<main id="content">
+<h2>Добро пожаловать!</h2>
+<p>Выберите раздел слева.</p>
+</main>
 
-  <script src="app.js"></script>
+<script>
+let users = [];
+let banners = [];
+let siteInfo = {};
+
+async function loadData() {
+    users = await fetch('users.json').then(res => res.json());
+    banners = await fetch('banners.json').then(res => res.json());
+    siteInfo = await fetch('site_info.json').then(res => res.json());
+}
+
+function showProfiles() {
+    let html = '<h2>Профили</h2>';
+    users.forEach(u => {
+        html += `<div class="profile">
+            <img src="${u.avatar}" alt="${u.username}">
+            <strong>${u.username}</strong> — ${u.role}<br>
+            <p>${u.description}</p>
+        </div>`;
+    });
+    document.getElementById('content').innerHTML = html;
+}
+
+function showLeaders() {
+    let html = '<h2>Лидеры</h2>';
+    users.filter(u => u.role.toLowerCase().includes('лидер'))
+        .forEach(u => {
+            html += `<div class="profile">
+                <img src="${u.avatar}" alt="${u.username}">
+                <strong>${u.username}</strong> — ${u.role}<br>
+                <p>${u.description}</p>
+            </div>`;
+        });
+    document.getElementById('content').innerHTML = html;
+}
+
+function showSled() {
+    let html = '<h2>Следящие</h2>';
+    users.filter(u => u.role.toLowerCase().includes('згс') || u.role.toLowerCase().includes('пзгс'))
+        .forEach(u => {
+            html += `<div class="profile">
+                <img src="${u.avatar}" alt="${u.username}">
+                <strong>${u.username}</strong> — ${u.role}<br>
+                <p>${u.description}</p>
+            </div>`;
+        });
+    document.getElementById('content').innerHTML = html;
+}
+
+function showInfo() {
+    let html = `<h2>Инфо сайта</h2><p>${siteInfo.info}</p>`;
+    banners.forEach(b => html += `<img class="banner" src="${b.image}" alt="${b.title}">`);
+    document.getElementById('content').innerHTML = html;
+}
+
+loadData();
+</script>
 </body>
 </html>
-
