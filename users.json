@@ -1,0 +1,14 @@
+[
+  {
+    "username": "Kercheck_Percheck",
+    "role": "Лидер",
+    "description": "Описание пользователя",
+    "avatar": "https://link_to_avatar.jpg"
+  },
+  {
+    "username": "Другой_юзер",
+    "role": "Заместитель",
+    "description": "Описание",
+    "avatar": "https://link_to_avatar2.jpg"
+  }
+]
