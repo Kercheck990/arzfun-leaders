@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "site_name": "Ghetto Arizona",
+    "version": "1.0"
+  },
+  "users": [
+    {
+      "id": 1,
+      "username": "valentain_vertucci",
+      "display_name": "Valentain_Vertucci",
+      "role": "leader",
+      "avatar": "uploads/avatar1.jpg",
+      "banner": "uploads/banner1.jpg",
+      "bio": "Лидер FBI. Пример био.",
+      "score": 73,
+      "status": "active",
+      "created_at": "2025-04-01T12:00:00Z"
+    },
+    {
+      "id": 2,
+      "username": "player_two",
+      "display_name": "PlayerTwo",
+      "role": "user",
+      "avatar": "",
+      "banner": "",
+      "bio": "Новичок.",
+      "score": 10,
+      "status": "active",
+      "created_at": "2025-05-01T08:00:00Z"
+    }
+  ]
+}
